@@ -25,6 +25,7 @@ function Minter() {
     const [info, setInfo] = useState(initialInfoState);
     const [mintInfo, setMintInfo] = useState(initialMintState);
     const [isEnabled, setIsEnabled] = useState(false);
+    const [caver, setCaver] = useState();
     console.log(mintInfo);
 
     // init 함수: 메타마스크 연결
@@ -42,29 +43,9 @@ function Minter() {
                 if (networkId == _contractJSON.chain_id) {
                     // 수정필요
                     console.log("here--------------");
-                    let caver = new window.Caver(
-                        new window.Caver.providers.HttpProvider(
-                            "https://node-api.klaytnapi.com/v1/klaytn",
-                            {
-                                headers: [
-                                    {
-                                        name: "Authorization",
-                                        value:
-                                            "Basic " +
-                                            Buffer.from(
-                                                "KASKVKSHCYZ2TU7FY112DH1C" +
-                                                    ":" +
-                                                    "XZQCdabXIm8bGwdxXX_3z-3pEvd0rifC8C5taWBL"
-                                            ).toString("base64"),
-                                    },
-                                    {
-                                        name: "x-chain-id",
-                                        value: "1001",
-                                    },
-                                ],
-                            }
-                        )
-                    );
+                    let caver = new Caver(window.klaytn);
+                    setCaver(caver);
+
                     setInfo((prevState) => ({
                         ...prevState,
                         connected: true,
@@ -77,7 +58,6 @@ function Minter() {
                         ),
                         contractJSON: _contractJSON,
                     }));
-                    console.log(caver);
                 } else {
                     setInfo(() => ({
                         ...initialInfoState,
@@ -112,21 +92,19 @@ function Minter() {
 
     const getSupply = async () => {
         console.log("info---------");
-        console.log(parseInt(info.contract.methods.totalSupply().encodeABI()));
+        console.log(info);
         const params = {
             gas: "0x2710",
             to: info.contractJSON.address,
-            from: info.account,
-            data: parseInt(info.contract.methods.totalSupply().encodeABI()),
+            from: window.klaytn.selectedAddress,
+            data: info.contract.methods.totalSupply().encodeABI(),
         };
         try {
-            const result = await window.klaytn.sendAsync(
-                {
-                    method: "klay_call",
-                    params: [params],
-                },
-                console.log
-            );
+            // const result = await caver.klay.sendAsync({
+            //     method: "klay_call",
+            //     params: [params],
+            // });
+            const result = await info.contract.call("totalSupply");
 
             setMintInfo((prevState) => ({
                 ...prevState,
@@ -147,14 +125,18 @@ function Minter() {
             data: info.contract.methods.getPrice().encodeABI(),
         };
         try {
-            const result = await window.klaytn.sendAsync({
-                method: "klay_call",
-                params: [params],
-            });
-            console.log(info.caver.utils.hexToNumberString(result));
+            // const result = await window.klaytn.sendAsync({
+            //     method: "klay_call",
+            //     params: [params],
+            // });
+            // console.log(info.caver.utils.hexToNumberString(result));
+            const result = await info.contract.call("getPrice");
+            console.log(result);
             setMintInfo((prevState) => ({
                 ...prevState,
-                cost: info.caver.utils.hexToNumberString(result),
+                cost: info.caver.utils.hexToNumberString(
+                    info.caver.utils.convertFromPeb(result, "KLAY")
+                ),
             }));
         } catch (err) {
             setMintInfo((prevState) => ({
@@ -165,26 +147,42 @@ function Minter() {
     };
 
     const mint = async () => {
-        const params = {
-            to: info.contractJSON.address,
-            from: info.account,
-            value: String(
-                info.caver.utils.toHex(Number(mintInfo.cost) * mintInfo.amount)
-            ),
-            data: info.contract.methods
-                .mint(info.account, mintInfo.amount)
-                .encodeABI(),
-        };
+        // const params = {
+        //     to: info.contractJSON.address,
+        //     from: info.account,
+        //     value: String(
+        //         info.caver.utils.toHex(Number(mintInfo.cost) * mintInfo.amount)
+        //     ),
+        //     data: info.contract.methods
+        //         .mint(info.account, mintInfo.amount)
+        //         .encodeABI(),
+        // };
         try {
             setMintInfo((prevState) => ({
                 ...prevState,
                 loading: true,
                 status: `Minting ${mintInfo.amount}...`,
             }));
-            const txHash = await window.klaytn.sendAsync({
-                method: "klay_sendTransaction",
-                params: [params],
-            });
+            // const txHash = await window.klaytn.sendAsync({
+            //     method: "klay_sendTransaction",
+            //     params: [params],
+            // });
+            //> myContract.send({ from: '0x{address in hex}', gas: 1000000 }, 'methodName', 123).then(console.log)
+            console.log("cost:", mintInfo.cost);
+            const result = await info.contract.send(
+                {
+                    from: info.account,
+                    gas: 1000000,
+                    value: String(
+                        caver.utils.toHex(
+                            Number(mintInfo.cost) * mintInfo.amount
+                        )
+                    ),
+                },
+                "mint",
+                info.account,
+                mintInfo.amount
+            );
             setMintInfo((prevState) => ({
                 ...prevState,
                 loading: false,
@@ -192,6 +190,7 @@ function Minter() {
             }));
             getSupply();
         } catch (err) {
+            console.error(err);
             setMintInfo((prevState) => ({
                 ...prevState,
                 loading: false,
@@ -291,10 +290,7 @@ function Minter() {
                                         textAlign: "center",
                                     }}
                                 >
-                                    {info.caver?.utils.fromWei(
-                                        mintInfo.cost,
-                                        "ether"
-                                    ) * mintInfo.amount}{" "}
+                                    {mintInfo.cost * mintInfo.amount}{" "}
                                     {contract.chain_symbol}
                                 </p>
                                 <div style={{ width: 20 }}></div>
