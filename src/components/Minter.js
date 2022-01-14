@@ -26,6 +26,7 @@ function Minter() {
     const [mintInfo, setMintInfo] = useState(initialMintState);
     const [isEnabled, setIsEnabled] = useState(false);
     const [caver, setCaver] = useState();
+    const defaultUnit = "000000000000000000";
     console.log(mintInfo);
 
     // init 함수: 메타마스크 연결
@@ -168,21 +169,93 @@ function Minter() {
             //     params: [params],
             // });
             //> myContract.send({ from: '0x{address in hex}', gas: 1000000 }, 'methodName', 123).then(console.log)
-            console.log("cost:", mintInfo.cost);
-            const result = await info.contract.send(
+            console.log("cost:", mintInfo);
+            console.log(Number(mintInfo.cost) * mintInfo.amount * 10 ** 18);
+            // const result = await info.contract.send(
+            //     {
+            //         from: info.account,
+            //         gas: 2500000,
+            //         value: caver.utils
+            //             .toHex(
+            //                 String(Number(mintInfo.cost) * mintInfo.amount) +
+            //                     defaultUnit
+            //             )
+            //             ,
+            //     },
+            //     "mintBatch",
+            //     info.account,
+            //     mintInfo.amount
+            // );
+            // const result = await info.contract.send(
+            //     {
+            //         from: info.account,
+            //         gas: 2500000,
+            //         value: caver.utils
+            //             .toHex(
+            //                 String(Number(mintInfo.cost) * mintInfo.amount) +
+            //                     defaultUnit
+            //             )
+            //             ,
+            //     },
+            //     "mintBatch",
+            //     info.account,
+            //     mintInfo.amount
+            // );
+
+            // info.contract.methods.mintBatch(info.account, mintInfo.amount).send(
+            //     {
+            //         from: info.account,
+            //         gas: 2500000,
+            //         value: caver.utils.toHex(
+            //             String(Number(mintInfo.cost) * mintInfo.amount) +
+            //                 defaultUnit
+            //         ),
+            //     },
+            //     console.log
+            // );
+
+            const data = caver.klay.abi.encodeFunctionCall(
                 {
-                    from: info.account,
-                    gas: 1000000,
-                    value: String(
-                        caver.utils.toHex(
-                            Number(mintInfo.cost) * mintInfo.amount
-                        )
-                    ),
+                    name: "mintBatch",
+                    type: "function",
+
+                    constant: false,
+                    inputs: [
+                        { name: "to", type: "address" },
+                        { name: "_mintAmount", type: "uint256" },
+                    ],
+                    outputs: [],
+                    payable: true,
+                    stateMutability: "payable",
+                    signature: "0x248b71fc",
                 },
-                "mint",
-                info.account,
-                mintInfo.amount
+                [info.account, 1]
             );
+
+            caver.klay
+                .sendTransaction({
+                    from: info.account,
+                    to: "0xA2c6d1E3dE2159c7C2fA8037B252D85a770730Ca",
+                    data,
+                    gas: 2500000,
+                    value: "1" + defaultUnit,
+                })
+                .on("transactionHash", (txHash) => {
+                    console.log("txHash", txHash);
+                })
+                .on("receipt", (receipt) => {
+                    console.log("receipt", receipt);
+                });
+
+            // await info.contract.send(
+            //     {
+            //         from: info.account,
+            //         gas: 2500000,
+            //     },
+            //     "mint",
+            //     info.account,
+            //     1
+            // );
             setMintInfo((prevState) => ({
                 ...prevState,
                 loading: false,

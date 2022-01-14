@@ -1564,9 +1564,9 @@ contract Ownable {
     }
 }
 
-contract TestContract is
+contract MTestContract is
     Ownable,
-    KIP17Full("Test Contract", "TCT"),
+    KIP17Full("MTest Contract", "MTC"),
     KIP17Mintable,
     KIP17Burnable,
     KIP17Pausable
@@ -1576,8 +1576,39 @@ contract TestContract is
     uint256 public price = 1e18;
     string public baseExtension = ".json";
 
+    mapping(address => uint256[]) public minterRange;
+    mapping(address => bool) private _minters;
+
+    function setMinterRange(
+        address _subparty,
+        uint256 _rangeFrom,
+        uint256 _rangeTo
+    ) public onlyOwner {
+        _minters[_subparty] = true;
+        minterRange[_subparty] = [_rangeFrom, _rangeTo];
+    }
+
+    function removeMinterRange(address _subparty) public onlyOwner {
+        require(_minters[_subparty]);
+        _minters[_subparty] = false;
+        minterRange[_subparty] = [2, 1];
+    }
+
+    function getMinterRange(address _subparty)
+        public
+        onlyOwner
+        returns (uint256[] memory)
+    {
+        return minterRange[_subparty];
+    }
+
     function setPrice(uint256 _price) public onlyOwner {
+        require(_price > 0);
         price = _price;
+    }
+
+    function getPrice() public view returns (uint256) {
+        return price;
     }
 
     function setMaximum(uint256 newMax) public onlyOwner {
@@ -1585,16 +1616,24 @@ contract TestContract is
         maximum = newMax;
     }
 
+    function getMaximum() public view returns (uint256) {
+        return maximum;
+    }
+
     function setBaseUri(string memory _baseUri) public onlyOwner {
         baseURI = _baseUri;
+    }
+
+    function getBaseUri() external view returns (string memory) {
+        return baseURI;
     }
 
     function setBaseExtension(string memory newExtension) public onlyOwner {
         baseExtension = newExtension;
     }
 
-    function getBaseUri() external view returns (string memory) {
-        return baseURI;
+    function getBaseExtension() public view returns (string memory) {
+        return baseExtension;
     }
 
     function getBalance() public view returns (uint256) {
@@ -1650,11 +1689,33 @@ contract TestContract is
         require(_mintAmount + supply <= maximum);
 
         if (msg.sender != owner()) {
-            require(msg.value >= price * _mintAmount);
+            if (_minters[msg.sender]) {
+                require(
+                    minterRange[msg.sender][0] != 2 &&
+                        minterRange[msg.sender][1] != 1
+                );
+            } else {
+                require(msg.value >= price * _mintAmount);
+            }
+        }
+
+        if (_minters[msg.sender]) {
+            uint256 _remainAmount = minterRange[msg.sender][1] +
+                1 -
+                minterRange[msg.sender][0];
+            require(_remainAmount > 0);
+            require(_mintAmount <= _remainAmount);
         }
 
         for (uint256 i = 1; i <= _mintAmount; i += 1) {
             mint(to, supply + i);
+        }
+
+        if (_minters[msg.sender]) {
+            minterRange[msg.sender][0] += _mintAmount;
+            if (minterRange[msg.sender][0] >= minterRange[msg.sender][1]) {
+                removeMinterRange(msg.sender);
+            }
         }
     }
 
