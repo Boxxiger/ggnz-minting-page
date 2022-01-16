@@ -1,195 +1,305 @@
 :root {
-  --button-bg: #8522c7;
-  --button-active-bg: #681d9b;
-  --small-button-bg: #919191;
-  --small-button-active-bg: #646464;
-  --button-text: #ffffff;
-  --card: #ffffff;
-  --accountText: #ffffff;
-  --statusText: #470068;
-  --bg-gradient_1: rgb(162, 196, 240);
-  --bg-gradient_2: rgb(240, 162, 217);
-  --gradient_1: rgb(83, 152, 243);
-  --gradient_2: rgb(236, 71, 214);
-  --gradient_3: rgb(241, 204, 80);
-  --success: #24a13f;
-  --warning: #ca5824;
-  --error: #ca2f24;
+    --button-bg: #8522c7;
+    --button-active-bg: #681d9b;
+    --small-button-bg: #919191;
+    --small-button-active-bg: #646464;
+    --button-text: #ffffff;
+    --card: #ffffff;
+    --accountText: #494949;
+    --statusText: #494949;
+    --bg-gradient_1: rgb(162, 196, 240);
+    --bg-gradient_2: rgb(240, 162, 217);
+    --gradient_1: rgb(83, 152, 243);
+    --gradient_2: rgb(236, 71, 214);
+    --gradient_3: rgb(241, 204, 80);
+    --success: #24a13f;
+    --warning: #ca5824;
+    --error: #ca2f24;
+    --title: #3d3d3d;
 }
 
 * {
-  font-family: "Lucida Console", "Courier New", monospace;
-  font-size: 14px;
-  font-weight: bold;
+    font-size: 14px;
+    font-weight: bold;
 }
 
 html,
 body {
-  padding: 0;
-  margin: 0;
-  background: linear-gradient(
-      var(--bg-gradient_1) 0%,
-      var(--bg-gradient_2) 100%
-    )
-    fixed;
+    padding: 0;
+    margin: 0;
+    background-color: #ffffff;
+}
+
+p {
+    margin: 0;
 }
 
 .colorGradient {
-  background: linear-gradient(
-      to bottom,
-      var(--gradient_1) 0%,
-      var(--gradient_2) 65%,
-      var(--gradient_3) 100%
-    )
-    fixed;
+    background: linear-gradient(
+            to bottom,
+            var(--gradient_1) 0%,
+            var(--gradient_2) 65%,
+            var(--gradient_3) 100%
+        )
+        fixed;
 }
 
 .page {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
+    /* min-height: 100vh; */
+    min-width: 30vh;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    padding: 0 10px;
 }
 
 .card {
-  background-color: var(--card);
-  display: flex;
-  flex-direction: column;
-  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
-  border-radius: 15px;
-  width: 300px;
-  transition: 0.3s;
-  margin: 50px;
-  position: relative;
-}
+    background-color: var(--card);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+    border-radius: 15px;
+    width: 300px;
+    transition: 0.3s;
+    margin: 50px;
+    position: relative;
+}
+.contents {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1 0 auto;
+}
 .card:hover {
-  box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
+    box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
 }
 
 .card_header {
-  height: 250px;
-  width: 300px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  position: relative;
-  border-top-left-radius: 15px;
-  border-top-right-radius: 15px;
-  position: relative;
+    flex: 1 0 auto;
+    /* height: 300px; */
+    width: 300px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    border-top-left-radius: 15px;
+    border-top-right-radius: 15px;
+    position: relative;
+    overflow: hidden;
 }
 
 .card_header_image {
-  position: absolute;
-  width: 120%;
+    /* position: absolute; */
+    top: 0;
+    left: 0;
+    width: 100%;
+    object-fit: cover;
 }
 
 .card_body {
-  padding: 15px;
-  margin-top: 30px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+    padding: 20px;
+    /* margin-top: 30px; */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+.title {
+    margin: 1rem 0 0 0;
+    font-size: 2rem;
+    color: var(--title);
+    /* align-self: center; */
+}
+.remaining__and__price {
+    display: flex;
+    flex-direction: column;
+    align-items: baseline;
+    margin-bottom: 1rem;
+}
+
+.remaining,
+.price {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: #3d3d3d;
+    font-weight: 200;
+    font-size: 1.2rem;
+}
+.price {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .card_body_view_contract {
-  padding-right: 15px;
-  padding-left: 15px;
+    padding-right: 15px;
+    padding-left: 15px;
 }
 
 .card_footer {
-  border-bottom-left-radius: 15px;
-  border-bottom-right-radius: 15px;
-  padding: 15px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+    /* padding: 15px; */
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: baseline;
+    margin: 8px 10px;
 }
 
 .spin {
-  animation: item-spin infinite 20s linear;
+    animation: item-spin infinite 20s linear;
 }
 
 .statusText {
-  color: var(--statusText);
-  font-weight: normal;
-  text-align: center;
+    color: var(--statusText);
+    font-weight: 200;
+    font-size: 0.9rem;
+    text-align: center;
+    margin-bottom: 1rem;
 }
-
+.card_footer > button {
+    font-size: 0.8rem;
+    padding: 4px 7px;
+    margin: 0 10px;
+}
 .accountText {
-  color: var(--accountText);
-  font-weight: bold;
+    color: var(--accountText);
+    font-weight: bold;
+    padding: 3px 0 5px 0;
+    overflow: hidden;
 }
 
+.minting_box {
+    display: flex;
+    flex-direction: column;
+
+    padding: 15px;
+}
+
+.minting_box {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.minting_box input {
+    background: 0;
+    border: 0;
+    outline: none;
+
+    border-bottom: 1px solid #cfcfcf;
+
+    /* transition: padding 0.3s 0.2s ease; */
+    width: 6rem;
+    text-align: center;
+
+    font-weight: 300;
+    color: #616161;
+    font-size: 1.1rem;
+}
+
+.minting_box input::placeholder {
+    font-size: 0.8rem;
+    color: #cfcfcf;
+    font-weight: 200;
+}
+
+.minting_box input:focus {
+    /* padding-bottom: 5px; */
+    border: 0;
+    outline: none;
+    border-bottom: 1px solid #b1b1b1;
+}
+.minting_box .minting_total {
+    margin: 0 0.5rem 0 0;
+    font-weight: 200;
+    color: #3d3d3d;
+}
+
+.minting_box button {
+    background: 0;
+    background-color: #ececec;
+    border: 1px solid #646464;
+    border-radius: 15px;
+    font-weight: 300;
+}
+
+.withdraw {
+    align-self: center;
+}
 .ns {
-  -webkit-user-select: none;
-  -khtml-user-select: none;
-  -moz-user-select: none;
-  -o-user-select: none;
-  user-select: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -o-user-select: none;
+    user-select: none;
 }
 
 ._90 {
-  -webkit-transform: rotate(90deg);
-  -moz-transform: rotate(90deg);
-  -o-transform: rotate(90deg);
-  -ms-transform: rotate(90deg);
-  transform: rotate(-90deg);
+    -webkit-transform: rotate(90deg);
+    -moz-transform: rotate(90deg);
+    -o-transform: rotate(90deg);
+    -ms-transform: rotate(90deg);
+    transform: rotate(-90deg);
 }
 
 .button {
-  display: inline-block;
-  padding: 7px 14px;
-  font-size: 14px;
-  cursor: pointer;
-  text-align: center;
-  text-decoration: none;
-  outline: none;
-  color: var(--button-text);
-  background-color: var(--button-bg);
-  border: none;
-  border-radius: 15px;
-  margin-bottom: 2px;
+    display: inline-block;
+    padding: 7px 14px;
+    font-size: 14px;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+    outline: none;
+    color: var(--button-text);
+    background-color: var(--button-bg);
+    border: none;
+    border-radius: 15px;
+    margin-bottom: 2px;
 }
 
 button:disabled {
-  opacity: 0.5;
+    opacity: 0.5;
 }
 
 .button:active {
-  background-color: var(--button-active-bg);
+    background-color: var(--button-active-bg);
 }
 
 .small_button {
-  display: inline-block;
-  padding: 5px 10px;
-  font-size: 10px;
-  cursor: pointer;
-  text-align: center;
-  text-decoration: none;
-  outline: none;
-  color: var(--button-text);
-  background-color: var(--small-button-bg);
-  border: none;
-  border-radius: 15px;
-  margin-bottom: 2px;
+    display: inline-block;
+    padding: 5px 10px;
+    font-size: 10px;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+    outline: none;
+    color: var(--button-text);
+    background-color: var(--small-button-bg);
+    border: none;
+    border-radius: 15px;
+    margin-bottom: 2px;
 }
 
 .small_button:disabled {
-  opacity: 0.5;
+    opacity: 0.5;
 }
 
 .small_button:active {
-  background-color: var(--small-button-active-bg);
+    background-color: var(--small-button-active-bg);
 }
 
 @keyframes item-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
 }
