@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import Caver from "caver-js";
-import contract from "../contracts/contract2.json";
+import contract from "../contracts/contract3.json";
 import ggnz from "../assets/ggnz.gif";
 import Footer from "./Footer";
 const initialInfoState = {
@@ -11,6 +11,7 @@ const initialInfoState = {
     contract: null,
     address: null,
     contractJSON: null,
+    keyring: null,
 };
 
 const initialMintState = {
@@ -27,7 +28,6 @@ function Minter() {
     const [info, setInfo] = useState(initialInfoState);
     const [mintInfo, setMintInfo] = useState(initialMintState);
     const [isEnabled, setIsEnabled] = useState(false);
-    const [caver, setCaver] = useState();
     const defaultUnit = "000000000000000000";
     const [disabled, setDisabled] = useState(true);
     const [isOwner, setIsOwner] = useState(false);
@@ -52,7 +52,6 @@ function Minter() {
                         _contractJSON.abi,
                         _contractJSON.address
                     );
-                    setCaver(caver);
 
                     setInfo((prevState) => ({
                         ...prevState,
@@ -152,31 +151,62 @@ function Minter() {
 
     const mint = async () => {
         try {
-            const params = {
-                to: info.contractJSON.address,
-                from: info.account,
-                gas: "2500000",
-                value: String(
-                    info.caver.utils.toHex(
-                        Number(mintInfo.cost) * mintInfo.amount
-                    )
-                ),
-                data: info.contract.methods
-                    .mintBatch(info.account, mintInfo.amount)
-                    .encodeABI(),
-            };
             setMintInfo((prevState) => ({
                 ...prevState,
                 loading: true,
                 status: `Minting ${mintInfo.amount}...`,
             }));
-            // ===============Account2로는 되는데 Account1로는 안되는 코드=============
-            const txHash = await window.klaytn.sendAsync({
-                method: "klay_sendTransaction",
-                params: [params],
+            let encodedCall = await info.caver.abi.encodeFunctionCall(
+                {
+                    name: "mintBatch",
+                    type: "function",
+                    inputs: [
+                        {
+                            name: "to",
+                            type: "address",
+                        },
+                        {
+                            name: "_mintAmount",
+                            type: "uint256",
+                        },
+                    ],
+                },
+                [info.account, mintInfo.amount]
+            );
+            let result = await info.caver.klay.sendTransaction({
+                type: "SMART_CONTRACT_EXECUTION",
                 from: info.account,
+                to: info.contractJSON.address,
+                input: encodedCall,
+                gas: "2500000",
+                value: String(
+                    info.caver.utils.toPeb(
+                        Number(mintInfo.cost) * mintInfo.amount
+                    )
+                ),
             });
-            console.log(txHash);
+
+            console.log(result);
+            // ===============Account2로는 되는데 Account1로는 안되는 코드=============
+            // const params = {
+            //     to: info.contractJSON.address,
+            //     from: info.account,
+            //     gas: "2500000",
+            //     value: String(
+            //         info.caver.utils.toHex(
+            //             Number(mintInfo.cost) * mintInfo.amount
+            //         )
+            //     ),
+            //     data: info.contract.methods
+            //         .mintBatch(info.account, mintInfo.amount)
+            //         .encodeABI(),
+            // };
+            // const txHash = await window.klaytn.sendAsync({
+            //     method: "klay_sendTransaction",
+            //     params: [params],
+            //     from: info.account,
+            // });
+            // console.log(txHash);
             // ================================================================
             //> myContract.send({ from: '0x{address in hex}', gas: 1000000 }, 'methodName', 123).then(console.log)
 
