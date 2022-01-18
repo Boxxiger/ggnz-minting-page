@@ -1,4 +1,4 @@
-import contract from "../contracts/contract2.json";
+import contract from "../contracts/contract.json";
 function Footer({ mintInfo, info, connectToContract }) {
     return (
         <div className="card_footer">
